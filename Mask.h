@@ -14,8 +14,7 @@ namespace cimg_extension {
     public:
 
         //  Default deconstructor
-        ~Layer() {
-        }
+        ~Layer() {}
 
         // type definitions
         typedef T              value_type;
@@ -72,49 +71,24 @@ namespace cimg_extension {
         unsigned int _width, _allocated_width;
     public:
         // type definitions
-        typedef T              value_type;
+        typedef Layer<T>              value_type;
         typedef Layer<T>*             iterator;
         typedef const Layer<T>*       const_iterator;
-        typedef T&             reference;
-        typedef const T&       const_reference;
+        typedef Layer<T>&             reference;
+        typedef const Layer<T>&       const_reference;
         typedef std::size_t    size_type;
 
         // Default Constructor
         Layer_System():index(0) {}
 
-        ~Layer_System() {
-            // delete[] _layers;
-        }
+        ~Layer_System() {}
 
-        //! Destructor \inplace.
-        Layer_System<T,N>& assign() {
-          delete[] _layers;
-          _width = _allocated_width = 0;
-          _layers = 0;
-          return *this;
-        }
-
-        Layer_System<T,N>& clear() {
-          return assign();
-        }
-
-        //! Return a reference to an empty list.
-        /**
-          \note Can be used to define default values in a function taking a CImgList<T> as an argument.
-          \code
-          void f(const CImgList<char>& list=CImgList<char>::empty());
-          \endcode
-        **/
-        static Layer_System<T,N>& empty() {
-          static Layer_System<T,N> _empty;
-          return _empty.assign();
-        }
-
-        //! Return a reference to an empty list \const.
-        static const Layer_System<T,N>& const_empty() {
-          static const Layer_System<T,N> _empty;
-          return _empty;
-        }
+        // iterator support
+        iterator        begin()       { return _layers; }
+        const_iterator  begin() const { return _layers; }
+        
+        iterator        end()       { return _layers+N; }
+        const_iterator  end() const { return _layers+N; }
 
         // at() with range check
         reference at(size_type i) { rangecheck(i); return _layers[i]; }
@@ -141,30 +115,61 @@ namespace cimg_extension {
             return _layers[N-1]; 
         }
 
-        // size is constant
+        // operator[]
+        reference operator[](size_type i) 
+        { 
+            return _layers[i];
+        }
+        
+        const_reference operator[](size_type i) const 
+        {     
+            return _layers[i]; 
+        }
+
+        // Size is constant
         static size_type size() { return N; }
         static size_type max_size() { return N; }
 
-        // get index
+        // Get index
         std::size_t get_index() {return index; }
 
-        // direct access to data (read-only)
-        const T* data() const { return _layers; }
-        T* data() { return _layers; }
+        // Direct access to data (read-only)
+        const value_type* data() const { return _layers; }
+        value_type* data() { return _layers; }
+
+        // Return pointer to the pos-th layer of the list.
+        const_reference data(size_type pos) const {
+            if (pos >= index) {
+                std::out_of_range e("array<>: index out of range");
+                //throw exception
+                throw "index out of range";
+            }
+            return _layers[pos];
+        } 
+        reference data(size_type pos) {
+            if (pos >= index) {
+                std::out_of_range e("array<>: index out of range");
+                //throw exception
+                throw "index out of range";
+            }
+            return _layers[pos];
+        }
 
         // check range (may be private because it is static)
         static void rangecheck (size_type i) {
             if (i >= size()) {
                 std::out_of_range e("array<>: index out of range");
                 //throw exception
+                throw "index out of range";
             }
         }
 
         // Layer manipulation
-        void add_layer(Layer<T> layer) {
+        void add_layer(value_type layer) {
             if (index == N) {
                 std::out_of_range e("array<>: index out of range");
                 //throw exception
+                throw "index out of range";
             }
             _layers[index++] = layer;
         }
@@ -173,10 +178,11 @@ namespace cimg_extension {
             index--;
         }
 
-        Layer<T> get_top_layer() {
+        value_type get_top_layer() {
             if (index == 0) {
                 std::out_of_range e("array<>: index out of range");
                 //throw exception
+                throw "index out of range";
             }
             return _layers[index-1];
         }
@@ -185,7 +191,7 @@ namespace cimg_extension {
         /*
             iter is the number of total iterations
         */
-        Layer<T>* smooth_layer(Layer<T> layer, const int index, const int iter=50) {
+        value_type* smooth_layer(value_type layer, const int index, const int iter=50) {
             CImg<T> img = layer.data();
             CImg<T> smooth_img = img.get_smooth(index, iter);
             return new Layer<T>(smooth_img);
@@ -195,25 +201,41 @@ namespace cimg_extension {
         /*
         * sigma
         */
-        Layer<T>* blur_gradient_layer(Layer<T> layer, const double sigma=0) {
+        value_type* blur_gradient_layer(value_type layer, const double sigma=0) {
             CImg<T> img = layer.data();
             CImg<T> blur_gradient_img = img.get_blur_gradient(sigma);
             return new Layer<T>(blur_gradient_img);
         }
 
         // Set visibility
-        void set_visible(Layer<T> layer) {
+        void set_visible(reference layer) {
             if (layer.visible()) {
                 return;
             }
             layer.set_visible();
         }
 
-        void set_invisible(Layer<T> layer) {
+        void set_invisible(reference layer) {
             if (!layer.visible()) {
                 return;
             }
             layer.set_invisible();
+        }
+
+        // Merge layer
+        value_type* merge_layer() {
+            if (index == 0) {
+                std::out_of_range e("array<>: index out of range");
+                //throw exception
+                throw "index out of range";
+            }
+            CImg<T> img = _layers[0].data();
+            for (size_type i = 1; i < index; i++) {
+                if (_layers[i].visible()) {
+                    img = img.draw_image(_layers[i].data());
+                }
+            }
+            return new Layer<T>(img);
         }
     };
 }

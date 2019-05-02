@@ -36,10 +36,22 @@ int main(int argc,char **argv) {
   sys.add_layer(layer2);
   sys.add_layer(layer3);
 
-  // std::cout<<sys.get_index()<<std::endl;
+  /*
   cimg_extension::Layer<float> layer = sys.get_top_layer();
   CImg<float> img = layer.data();
   img.display();
+  */
+
+  //Test merge layer
+  try {
+  	sys.set_invisible(sys.data(-1));
+	cimg_extension::Layer<float> layer = *(sys.merge_layer());
+	CImg<float> img = layer.data();
+	img.display();
+  } catch(const char* msg) {
+  	std::cerr << msg << std::endl;
+  }
+  
 
   return 0;
 }
