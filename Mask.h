@@ -17,12 +17,12 @@ namespace cimg_extension {
         ~Layer() {}
 
         // type definitions
-        typedef T              value_type;
-        typedef T*             iterator;
-        typedef const T*       const_iterator;
-        typedef T&             reference;
-        typedef const T&       const_reference;
-        typedef std::size_t    size_type;
+        typedef CImg<T>              value_type;
+        typedef CImg<T>*             iterator;
+        typedef const CImg<T>*       const_iterator;
+        typedef CImg<T>&             reference;
+        typedef const CImg<T>&       const_reference;
+        typedef std::size_t          size_type;
 
         //  Default constructor
         /**
@@ -62,6 +62,7 @@ namespace cimg_extension {
         CImg<T> data() {
             return *_data;
         }
+
     };
 
     template<typename T, std::size_t N>
@@ -205,6 +206,12 @@ namespace cimg_extension {
             CImg<T> img = layer.data();
             CImg<T> blur_gradient_img = img.get_blur_gradient(sigma);
             return new Layer<T>(blur_gradient_img);
+        }
+
+        value_type* exposure_layer(value_type layer, const double gamma=1) {
+            CImg<T> img = layer.data();
+            CImg<T> exposure_img = img.get_exposure(gamma);
+            return new Layer<T>(exposure_img);
         }
 
         // Set visibility

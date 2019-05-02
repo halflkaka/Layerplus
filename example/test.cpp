@@ -8,19 +8,17 @@
 using namespace cimg_library;
 
 
-int main(int argc,char **argv) {
-  const CImg<float> image("Lenna.jpg");
+int main() {
+  CImg<float> image("Lenna.jpg");
 
   //Test layer
   cimg_extension::Layer<float> layer1(image);
-  // img.display("test");
 
   //Test System
   cimg_extension::Layer_System<float,10> sys;
   cimg_extension::Layer<float> layer2 = *(sys.smooth_layer(layer1, 50, 100)); 
-
-
   cimg_extension::Layer<float> layer3 = *(sys.blur_gradient_layer(layer1, 5));
+  cimg_extension::Layer<float> layer4 = *(sys.exposure_layer(layer1, 1.5));
 
   /* overlap
 
@@ -35,6 +33,7 @@ int main(int argc,char **argv) {
   sys.add_layer(layer1);
   sys.add_layer(layer2);
   sys.add_layer(layer3);
+  sys.add_layer(layer4);
 
   /*
   cimg_extension::Layer<float> layer = sys.get_top_layer();
@@ -45,9 +44,9 @@ int main(int argc,char **argv) {
   //Test merge layer
   try {
   	sys.set_invisible(sys.data(-1));
-	cimg_extension::Layer<float> layer = *(sys.merge_layer());
-	CImg<float> img = layer.data();
-	img.display();
+  	cimg_extension::Layer<float> layer = *(sys.merge_layer());
+  	CImg<float> img = layer.data();
+  	img.display();
   } catch(const char* msg) {
   	std::cerr << msg << std::endl;
   }

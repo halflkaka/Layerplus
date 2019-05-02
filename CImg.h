@@ -56220,6 +56220,19 @@ namespace cimg_library_suffixed {
 		return CImg<Tfloat>(*this, false).blur_gradient(sigma);
 	}
 
+	// Exposure adjustment
+	CImg<T>& exposure(const double param) {
+		if (is_empty()) return *this;
+		if (!cimg::type<T>::is_float()) {
+    		return CImg<Tfloat>(*this).exposure(param);
+    	}
+	  	cimg_forXYZC(*this,x,y,z,k) (*this)(x,y,z,k) = std::pow((double)(*this)(x,y,z,k),1.0/param);
+	  	return *this;
+	}
+
+	CImg<Tfloat> get_exposure(const double gamma=1) {
+		return CImg<Tfloat>(*this, false).exposure(gamma);
+	}
     //@}
   };
 
