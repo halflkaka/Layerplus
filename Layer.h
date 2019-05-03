@@ -1,7 +1,7 @@
 /*
-    #   File        :   Mask.h
+    #   File        :   Layer.h
     #   Description :   Extension to C++ Template Image Processing Library CImg.h
-                        Mask Manipulation Toolkit
+                        Layer Manipulation Toolkit
 */
 #include "CImg.h"
 using namespace cimg_library;
