@@ -58,9 +58,19 @@ namespace cimg_extension {
             _is_visible = false;
         }
 
+        void display() {
+            data().display();
+        }
+
         // Data
         CImg<T> data() {
             return *_data;
+        }
+
+        // Clear
+        reference clear() {
+            _data = new CImg<T>();
+            _is_visible = true;
         }
 
     };
